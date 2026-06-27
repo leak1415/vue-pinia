@@ -1,59 +1,12 @@
 <script setup lang="ts">
-import { computed, reactive, ref, watch } from 'vue'
-import { storeToRefs } from 'pinia'
-
-import { useCartStore } from './stores/cart'
-import { useCounterStore } from './stores/counter'
+import { computed, watch } from 'vue'
 import { useThemeStore } from './stores/theme'
-import { useTodoStore } from './stores/todo'
-import { useUserStore } from './stores/user'
 
-const counterStore = useCounterStore()
-const { count, doubleCount } = storeToRefs(counterStore)
-
-const userStore = useUserStore()
-const { name, age, email } = storeToRefs(userStore)
-const userForm = reactive({
-  name: name.value,
-  age: String(age.value),
-  email: email.value,
-})
-
-function saveUser() {
-  userStore.updateName(userForm.name)
-  userStore.updateAge(Number(userForm.age))
-  userStore.updateEmail(userForm.email)
-
-  userForm.name = name.value
-  userForm.age = String(age.value)
-  userForm.email = email.value
-}
-
-const todoStore = useTodoStore()
-const { todos, completedTodos, pendingTodos, totalTodos } = storeToRefs(todoStore)
-const newTodoTitle = ref('')
-
-function addTodo() {
-  const nextTitle = newTodoTitle.value.trim()
-
-  todoStore.addTodo(newTodoTitle.value)
-
-  if (nextTitle) {
-    newTodoTitle.value = ''
-  }
-}
-
-const cartStore = useCartStore()
-const { products, cart, totalItems, totalPrice } = storeToRefs(cartStore)
-
-const currencyFormatter = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD',
-})
-
-function formatCurrency(value: number) {
-  return currencyFormatter.format(value)
-}
+import Counter from './components/Counter.vue'
+import UserProfile from './components/UserProfile.vue'
+import TodoList from './components/TodoList.vue'
+import ShoppingCard from './components/ShoppingCard.vue'
+import ThemeStore from './components/ThemeStore.vue'
 
 const themeStore = useThemeStore()
 const themeActionLabel = computed(() =>
@@ -86,202 +39,11 @@ watch(
     </header>
 
     <section class="workspace">
-      <section class="panel">
-        <div class="panel-head">
-          <p class="panel-kicker">Exercise 1</p>
-          <h2>Counter Store</h2>
-        </div>
-
-        <dl class="metrics-grid">
-          <div class="metric">
-            <dt>Current count</dt>
-            <dd>{{ count }}</dd>
-          </div>
-
-          <div class="metric">
-            <dt>Double count</dt>
-            <dd>{{ doubleCount }}</dd>
-          </div>
-        </dl>
-
-        <div class="button-row">
-          <button class="button primary" type="button" @click="counterStore.increment">
-            Increment
-          </button>
-          <button class="button" type="button" @click="counterStore.decrement">
-            Decrement
-          </button>
-          <button class="button ghost" type="button" @click="counterStore.reset">
-            Reset
-          </button>
-        </div>
-      </section>
-
-      <section class="panel">
-        <div class="panel-head">
-          <p class="panel-kicker">Exercise 2</p>
-          <h2>User Store</h2>
-        </div>
-
-        <dl class="info-grid">
-          <div class="info-card">
-            <dt>Name</dt>
-            <dd>{{ name }}</dd>
-          </div>
-          <div class="info-card">
-            <dt>Age</dt>
-            <dd>{{ age }}</dd>
-          </div>
-          <div class="info-card">
-            <dt>Email</dt>
-            <dd>{{ email }}</dd>
-          </div>
-        </dl>
-
-        <form class="form-grid" @submit.prevent="saveUser">
-          <label class="field">
-            <span>Name</span>
-            <input v-model="userForm.name" type="text" autocomplete="name" />
-          </label>
-
-          <label class="field">
-            <span>Age</span>
-            <input v-model="userForm.age" type="number" min="0" inputmode="numeric" />
-          </label>
-
-          <label class="field">
-            <span>Email</span>
-            <input v-model="userForm.email" type="email" autocomplete="email" />
-          </label>
-
-          <button class="button primary" type="submit">Update user</button>
-        </form>
-      </section>
-
-      <section class="panel panel-wide">
-        <div class="panel-head">
-          <p class="panel-kicker">Exercise 3</p>
-          <h2>Todo List</h2>
-        </div>
-
-        <form class="todo-form" @submit.prevent="addTodo">
-          <label class="field field-grow">
-            <span>New todo</span>
-            <input
-              v-model="newTodoTitle"
-              type="text"
-              placeholder="Add a task"
-              autocomplete="off"
-            />
-          </label>
-
-          <button class="button success" type="submit">Add todo</button>
-        </form>
-
-        <dl class="stats-grid">
-          <div class="metric">
-            <dt>Total todos</dt>
-            <dd>{{ totalTodos }}</dd>
-          </div>
-          <div class="metric">
-            <dt>Completed</dt>
-            <dd>{{ completedTodos.length }}</dd>
-          </div>
-          <div class="metric">
-            <dt>Pending</dt>
-            <dd>{{ pendingTodos.length }}</dd>
-          </div>
-        </dl>
-
-        <ul class="todo-list">
-          <li v-for="todo in todos" :key="todo.id" class="todo-item">
-            <div class="todo-copy">
-              <span class="todo-title" :class="{ completed: todo.completed }">
-                {{ todo.title }}
-              </span>
-              <span class="todo-state">
-                {{ todo.completed ? 'Completed' : 'Pending' }}
-              </span>
-            </div>
-
-            <div class="todo-actions">
-              <button
-                class="button"
-                type="button"
-                @click="todoStore.toggleTodo(todo.id)"
-              >
-                {{ todo.completed ? 'Mark pending' : 'Mark complete' }}
-              </button>
-              <button class="button danger" type="button" @click="todoStore.deleteTodo(todo.id)">
-                Delete
-              </button>
-            </div>
-          </li>
-        </ul>
-      </section>
-
-      <section class="panel panel-wide">
-        <div class="panel-head">
-          <p class="panel-kicker">Exercise 4</p>
-          <h2>Shopping Cart</h2>
-        </div>
-
-        <div class="catalog-grid">
-          <article v-for="product in products" :key="product.id" class="product-row">
-            <div class="product-copy">
-              <h3>{{ product.title }}</h3>
-              <p>{{ formatCurrency(product.price) }}</p>
-            </div>
-
-            <button class="button success" type="button" @click="cartStore.addToCart(product)">
-              Add to cart
-            </button>
-          </article>
-        </div>
-
-        <div class="summary-bar">
-          <div>
-            <span class="summary-label">Total items</span>
-            <strong>{{ totalItems }}</strong>
-          </div>
-          <div>
-            <span class="summary-label">Total price</span>
-            <strong>{{ formatCurrency(totalPrice) }}</strong>
-          </div>
-          <button class="button ghost" type="button" @click="cartStore.clearCart" :disabled="!cart.length">
-            Clear cart
-          </button>
-        </div>
-
-        <ul class="cart-list">
-          <li v-for="item in cart" :key="item.id" class="cart-item">
-            <div class="cart-copy">
-              <h3>{{ item.title }}</h3>
-              <p>
-                {{ item.quantity }} x {{ formatCurrency(item.price) }}
-                <span class="cart-subtotal">{{ formatCurrency(item.price * item.quantity) }}</span>
-              </p>
-            </div>
-
-            <button class="button danger" type="button" @click="cartStore.removeFromCart(item.id)">
-              Remove one
-            </button>
-          </li>
-        </ul>
-      </section>
-
-      <section class="panel">
-        <div class="panel-head">
-          <p class="panel-kicker">Exercise 5</p>
-          <h2>Theme Store</h2>
-        </div>
-
-        <div class="theme-card" :class="{ dark: themeStore.darkMode }">
-          <p class="theme-label">Current mode</p>
-          <strong>{{ themeStore.darkMode ? 'Dark Mode' : 'Light Mode' }}</strong>
-          <span class="theme-swatch" />
-        </div>
-      </section>
+      <Counter />
+      <UserProfile />
+      <TodoList />
+      <ShoppingCard />
+      <ThemeStore />
     </section>
   </main>
 </template>
@@ -368,12 +130,20 @@ button {
 }
 
 .page-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 16px;
+
   width: 100%;
-  margin-bottom: 24px;
+  padding: 20px 0;
+
+  background: var(--page-bg);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .page-copy {

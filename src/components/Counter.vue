@@ -1,26 +1,40 @@
-<script setup>
-import { useCounterStore } from '@/stores/counter'
+<script setup lang="ts">
 import { storeToRefs } from 'pinia'
+import { useCounterStore } from '../stores/counter'
 
-const store = useCounterStore()
-
-const { count, doubleCount } = storeToRefs(store)
-
-const { increment, decrement } = store
+const counterStore = useCounterStore()
+const { count, doubleCount } = storeToRefs(counterStore)
 </script>
 
 <template>
+  <section class="panel">
+    <div class="panel-head">
+      <p class="panel-kicker">Exercise 1</p>
+      <h2>Counter Store</h2>
+    </div>
 
-<h2>Counter : {{ count }}</h2>
+    <dl class="metrics-grid">
+      <div class="metric">
+        <dt>Current count</dt>
+        <dd>{{ count }}</dd>
+      </div>
 
-<h2>Double : {{ doubleCount }}</h2>
+      <div class="metric">
+        <dt>Double count</dt>
+        <dd>{{ doubleCount }}</dd>
+      </div>
+    </dl>
 
-<button @click="increment">
-+
-</button>
-
-<button @click="decrement">
--
-</button>
-
+    <div class="button-row">
+      <button class="button primary" type="button" @click="counterStore.increment">
+        Increment
+      </button>
+      <button class="button" type="button" @click="counterStore.decrement">
+        Decrement
+      </button>
+      <button class="button ghost" type="button" @click="counterStore.reset">
+        Reset
+      </button>
+    </div>
+  </section>
 </template>
