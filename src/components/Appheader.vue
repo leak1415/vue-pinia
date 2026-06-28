@@ -2,7 +2,6 @@
   <header class="header">
     <div class="header-inner">
       <div class="logo">
-        <span class="logo-icon">🍍</span>
         <span class="logo-text">Pinia <span class="logo-accent">Exercises</span></span>
       </div>
 
